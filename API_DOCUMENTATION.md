@@ -27,6 +27,7 @@ POST /auth/register
   "fullName": "John Doe"
 }
 ```
+**Response:** Sets `refreshToken` in httpOnly cookie
 
 #### Login User
 ```http
@@ -39,6 +40,19 @@ POST /auth/login
   "password": "password123"
 }
 ```
+**Response:** Sets `refreshToken` in httpOnly cookie
+
+#### Refresh Access Token
+```http
+POST /auth/refresh-token
+```
+**Cookies:** `refreshToken` (automatically sent)
+
+#### Logout
+```http
+POST /auth/logout
+```
+**Response:** Clears `refreshToken` cookie
 
 ### Users
 

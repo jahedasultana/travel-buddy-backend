@@ -15,7 +15,14 @@ const loginValidation = z.object({
   }),
 });
 
+const refreshTokenValidation = z.object({
+  cookies: z.object({
+    refreshToken: z.string().min(1, 'Refresh token is required'),
+  }),
+});
+
 export const AuthValidation = {
   registerValidation,
   loginValidation,
+  refreshTokenValidation,
 };

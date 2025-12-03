@@ -8,13 +8,18 @@ import prisma from '../shared/prisma';
 export const auth = (...requiredRoles: string[]) => {
   return async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
-      const token = req.headers.authorization?.replace('Bearer ', '');
+      const token = req.headers.authorization?.replace('Bearer ', '') || req.cookies.accessToken;
 
       if (!token) {
         throw new AppError(401, 'You are not authorized');
       }
 
-      const decoded = jwt.verify(token, config.jwt.jwt_secret as string) as JwtPayload;
+      let decoded;
+      try {
+        decoded = jwt.verify(token, config.jwt.jwt_secret as string) as JwtPayload;
+      } catch (error) {
+        throw new AppError(401, 'Invalid token');
+      }
 
       const { id, email, role } = decoded as IAuthUser;
 

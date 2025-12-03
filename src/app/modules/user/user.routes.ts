@@ -8,9 +8,12 @@ import { Router } from "express";
 
 const router = express.Router();
 
-router.get('/', UserController.getAllUsers);
+router.get('/',
+  auth('ADMIN'),
+  UserController.getAllUsers);
 
-router.get('/:id', UserController.getUserProfile);
+router.get('/:id', 
+  UserController.getUserProfile);
 
 router.patch(
   '/:id',

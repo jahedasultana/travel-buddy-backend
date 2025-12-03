@@ -33,11 +33,16 @@ const registerUser = async (payload: IRegisterUser): Promise<IAuthResponse> => {
   };
 
   const accessToken = jwt.sign(jwtPayload, config.jwt.jwt_secret as string, {
-    expiresIn: config.jwt.expires_in,
+    expiresIn: config.jwt.jwt_access_expires_in,
+  });
+
+  const refreshToken = jwt.sign(jwtPayload, config.jwt.jwt_refresh_secret as string, {
+    expiresIn: config.jwt.jwt_refresh_expires_in,
   });
 
   return {
     accessToken,
+    refreshToken,
     user: {
       id: user.id,
       email: user.email,
@@ -73,11 +78,16 @@ const loginUser = async (payload: ILoginUser): Promise<IAuthResponse> => {
   };
 
   const accessToken = jwt.sign(jwtPayload, config.jwt.jwt_secret as string, {
-    expiresIn: config.jwt.expires_in,
+    expiresIn: config.jwt.jwt_access_expires_in,
+  });
+
+  const refreshToken = jwt.sign(jwtPayload, config.jwt.jwt_refresh_secret as string, {
+    expiresIn: config.jwt.jwt_refresh_expires_in,
   });
 
   return {
     accessToken,
+    refreshToken,
     user: {
       id: user.id,
       email: user.email,
@@ -89,7 +99,32 @@ const loginUser = async (payload: ILoginUser): Promise<IAuthResponse> => {
   };
 };
 
+const refreshToken = async (token: string): Promise<{ accessToken: string }> => {
+  const decoded = jwt.verify(token, config.jwt.jwt_refresh_secret as string) as any;
+
+  const user = await prisma.user.findUnique({
+    where: { id: decoded.id },
+  });
+
+  if (!user) {
+    throw new AppError(404, 'User not found');
+  }
+
+  const jwtPayload = {
+    id: user.id,
+    email: user.email,
+    role: user.role,
+  };
+
+  const accessToken = jwt.sign(jwtPayload, config.jwt.jwt_secret as string, {
+    expiresIn: config.jwt.jwt_access_expires_in,
+  });
+
+  return { accessToken };
+};
+
 export const AuthService = {
   registerUser,
   loginUser,
+  refreshToken,
 };
