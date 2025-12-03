@@ -1,0 +1,111 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum TravelType {
+  SOLO
+  FAMILY
+  FRIENDS
+  COUPLE
+}
+
+enum SubscriptionType {
+  MONTHLY
+  YEARLY
+}
+
+model User {
+  id                String    @id @default(cuid())
+  email             String    @unique
+  password          String
+  fullName          String
+  profileImage      String?
+  bio               String?
+  currentLocation   String?
+  visitedCountries  String[]
+  travelInterests   String[]
+  role              Role      @default(USER)
+  isSubscribed      Boolean   @default(false)
+  subscriptionType  SubscriptionType?
+  subscriptionExpiry DateTime?
+  isVerified        Boolean   @default(false)
+  averageRating     Float     @default(0)
+  totalReviews      Int       @default(0)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  // Relations
+  travelPlans       TravelPlan[]
+  reviewsGiven      Review[]     @relation("ReviewerRelation")
+  reviewsReceived   Review[]     @relation("RevieweeRelation")
+  subscriptions     Subscription[]
+
+  @@map("users")
+}
+
+model TravelPlan {
+  id          String     @id @default(cuid())
+  destination String
+  startDate   DateTime
+  endDate     DateTime
+  budgetMin   Int?
+  budgetMax   Int?
+  travelType  TravelType
+  description String?
+  itinerary   String?
+  isActive    Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  // Relations
+  userId      String
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("travel_plans")
+}
+
+model Review {
+  id          String   @id @default(cuid())
+  rating      Int      @db.SmallInt
+  comment     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  reviewerId  String
+  revieweeId  String
+  reviewer    User     @relation("ReviewerRelation", fields: [reviewerId], references: [id], onDelete: Cascade)
+  reviewee    User     @relation("RevieweeRelation", fields: [revieweeId], references: [id], onDelete: Cascade)
+
+  @@unique([reviewerId, revieweeId])
+  @@map("reviews")
+}
+
+model Subscription {
+  id              String           @id @default(cuid())
+  stripeSessionId String?          @unique
+  amount          Int
+  currency        String           @default("usd")
+  type            SubscriptionType
+  status          String           @default("pending")
+  startDate       DateTime?
+  endDate         DateTime?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  // Relations
+  userId          String
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("subscriptions")
+}
