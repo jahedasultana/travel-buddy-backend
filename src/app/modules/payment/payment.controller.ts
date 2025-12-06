@@ -3,15 +3,15 @@ import { sendResponse } from '../../helper/responseHelper';
 import { AuthenticatedRequest } from '../../types';
 import { PaymentService } from './payment.service';
 
-const createSubscription = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+const createPayment = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {
     const userId = req.user?.id as string;
-    const result = await PaymentService.createSubscription(userId, req.body);
+    const result = await PaymentService.createPayment(userId, req.body);
 
     sendResponse(res, {
       success: true,
       statusCode: 201,
-      message: 'Subscription created successfully',
+      message: 'Payment created successfully',
       data: result,
     });
   } catch (error) {
@@ -19,26 +19,15 @@ const createSubscription = async (req: AuthenticatedRequest, res: Response, next
   }
 };
 
-const handleWebhook = async (req: Request, res: Response, next: NextFunction) => {
+const confirmPayment = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const event = req.body;
-    await PaymentService.handleWebhook(event);
-
-    res.status(200).json({ received: true });
-  } catch (error) {
-    next(error);
-  }
-};
-
-const getUserSubscriptions = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-  try {
-    const userId = req.user?.id as string;
-    const result = await PaymentService.getUserSubscriptions(userId);
+    const { sessionId } = req.body;
+    const result = await PaymentService.confirmPayment(sessionId);
 
     sendResponse(res, {
       success: true,
       statusCode: 200,
-      message: 'User subscriptions retrieved successfully',
+      message: 'Payment confirmed successfully',
       data: result,
     });
   } catch (error) {
@@ -47,7 +36,6 @@ const getUserSubscriptions = async (req: AuthenticatedRequest, res: Response, ne
 };
 
 export const PaymentController = {
-  createSubscription,
-  handleWebhook,
-  getUserSubscriptions,
+  createPayment,
+  confirmPayment,
 };

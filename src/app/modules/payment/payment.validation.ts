@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-const createSubscriptionValidation = z.object({
+const createPaymentValidation = z.object({
   body: z.object({
     type: z.enum(['MONTHLY', 'YEARLY'], {
       required_error: 'Subscription type is required',
@@ -8,6 +8,15 @@ const createSubscriptionValidation = z.object({
   }),
 });
 
+const confirmPaymentValidation = z.object({
+  body: z.object({
+    sessionId: z.string({
+      required_error: 'Session ID is required',
+    }),
+  }),
+});
+
 export const PaymentValidation = {
-  createSubscriptionValidation,
+  createPaymentValidation,
+  confirmPaymentValidation,
 };

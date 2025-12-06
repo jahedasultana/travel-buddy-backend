@@ -8,14 +8,16 @@ import { Router } from "express";
 const router = express.Router();
 
 router.post(
-  '/create-subscription',
+  '/create-payment',
   auth('USER', 'ADMIN'),
-  validateRequest(PaymentValidation.createSubscriptionValidation),
-  PaymentController.createSubscription
+  validateRequest(PaymentValidation.createPaymentValidation),
+  PaymentController.createPayment
 );
 
-router.post('/webhook', PaymentController.handleWebhook);
-
-router.get('/subscriptions', auth('USER', 'ADMIN'), PaymentController.getUserSubscriptions);
+router.post(
+  '/confirm-payment',
+  validateRequest(PaymentValidation.confirmPaymentValidation),
+  PaymentController.confirmPayment
+);
 
 export const PaymentRoutes: Router = router;
