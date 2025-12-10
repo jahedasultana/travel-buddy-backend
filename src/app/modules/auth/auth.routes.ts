@@ -1,29 +1,20 @@
-import express from 'express';
-import { validateRequest } from '../../middleware/validateRequest';
-import { AuthController } from './auth.controller';
-import { AuthValidation } from './auth.validation';
-import { Router } from "express";
+import { Router } from "express"
+import { AuthControllers } from "./auth.controllers"
 
-const router = express.Router();
+const authRouter = Router()
 
-router.post(
-  '/register',
-  validateRequest(AuthValidation.registerValidation),
-  AuthController.registerUser
-);
+// Get loged in user route
+authRouter.get(
+    "/me",
+    AuthControllers.getMe
+)
 
-router.post(
-  '/login',
-  validateRequest(AuthValidation.loginValidation),
-  AuthController.loginUser
-);
+// User login route
+authRouter.post('/login', AuthControllers.userLogin)
 
-router.post(
-  '/refresh-token',
-  validateRequest(AuthValidation.refreshTokenValidation),
-  AuthController.refreshToken
-);
+authRouter.post(
+    '/refresh-token',
+    AuthControllers.refreshToken
+)
 
-router.post('/logout', AuthController.logout);
-
-export const AuthRoutes: Router = router;
+export default authRouter 

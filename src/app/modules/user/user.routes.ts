@@ -1,26 +1,29 @@
-import express from 'express';
-import { auth } from '../../middleware/auth';
-import { upload } from '../../middleware/multer';
-import { validateRequest } from '../../middleware/validateRequest';
-import { UserController } from './user.controller';
-import { UserValidation } from './user.validation';
-import { Router } from "express";
+import { Router } from "express"
+import validateRequest from "../../middlewares/validateRequest"
+import { UserValidation } from "./user.validation"
+import { UserControllers } from "./user.controllers"
+import { checkAuth } from "@/app/middlewares/checkAuth"
+import { UserRole } from "@/generated/prisma/enums"
+import { fileUploader } from "@/app/utils/fileUploader"
 
-const router = express.Router();
+const userRouter = Router()
 
-router.get('/',
-  auth('ADMIN'),
-  UserController.getAllUsers);
+// Get all users 
+userRouter.get('/', checkAuth(UserRole.ADMIN, UserRole.USER), UserControllers.getAllUsers)
 
-router.get('/:id', 
-  UserController.getUserProfile);
+// Get profile info
+userRouter.get(
+    '/profile',
+    checkAuth(UserRole.USER, UserRole.ADMIN, UserRole.SUPER_ADMIN),
+    UserControllers.getMyProfile
+)
 
-router.patch(
-  '/:id',
-  auth('USER', 'ADMIN'),
-  upload.single('profileImage'),
-  validateRequest(UserValidation.updateUserValidation),
-  UserController.updateUserProfile
-);
 
-export const UserRoutes: Router = router;
+// Ceate patient route
+userRouter.post('/create-user',
+     fileUploader.upload.single('file'),
+     validateRequest(UserValidation.createUserSchema),
+     UserControllers.createUser
+)
+
+export default userRouter

@@ -1,111 +1,155 @@
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
-enum Role {
-  USER
+// User enums
+enum UserRole {
+  SUPER_ADMIN
   ADMIN
+  USER
 }
 
+enum UserStatus {
+  ACTIVE
+  BLOCKED
+  DELETED
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHERS
+}
+
+// Travel type enums
 enum TravelType {
   SOLO
   FAMILY
   FRIENDS
-  COUPLE
 }
 
-enum SubscriptionType {
-  MONTHLY
-  YEARLY
+// Payment enums
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
 }
 
+// user models
 model User {
-  id                String    @id @default(cuid())
-  email             String    @unique
-  password          String
-  fullName          String
-  profileImage      String?
-  bio               String?
-  currentLocation   String?
-  visitedCountries  String[]
-  travelInterests   String[]
-  role              Role      @default(USER)
-  isSubscribed      Boolean   @default(false)
-  subscriptionType  SubscriptionType?
-  subscriptionExpiry DateTime?
-  isVerified        Boolean   @default(false)
-  averageRating     Float     @default(0)
-  totalReviews      Int       @default(0)
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
+  id       String   @id @default(uuid())
+  name     String
+  email    String   @unique
+  password String
+  role     UserRole @default(USER)
 
-  // Relations
-  travelPlans       TravelPlan[]
-  reviewsGiven      Review[]     @relation("ReviewerRelation")
-  reviewsReceived   Review[]     @relation("RevieweeRelation")
-  subscriptions     Subscription[]
+  bio             String?
+  profileImage    String?
+  currentLocation String?
+  gender          Gender
+
+  interests        String[]
+  visitedCountries String[]
+
+  subscription       Subscription?
+  verifiedBadge      Boolean       @default(false)
+  status             UserStatus    @default(ACTIVE)
+  createdTravelPlans String[]
+
+  travelPlans     TravelPlan[]
+  reviewsGiven    Review[]     @relation("reviews_given")
+  reviewsReceived Review[]     @relation("reviews_received")
+  payments        Payment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("users")
 }
 
+// travel plan models
 model TravelPlan {
-  id          String     @id @default(cuid())
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
   destination String
   startDate   DateTime
   endDate     DateTime
-  budgetMin   Int?
-  budgetMax   Int?
+
+  budgetRange String?
   travelType  TravelType
   description String?
-  itinerary   String?
-  isActive    Boolean    @default(true)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  visibility  Boolean    @default(true)
 
-  // Relations
-  userId      String
-  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("travel_plans")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
+// review model
 model Review {
-  id          String   @id @default(cuid())
-  rating      Int      @db.SmallInt
-  comment     String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id String @id @default(uuid())
 
-  // Relations
-  reviewerId  String
-  revieweeId  String
-  reviewer    User     @relation("ReviewerRelation", fields: [reviewerId], references: [id], onDelete: Cascade)
-  reviewee    User     @relation("RevieweeRelation", fields: [revieweeId], references: [id], onDelete: Cascade)
+  reviewerId String
+  receiverId String
 
-  @@unique([reviewerId, revieweeId])
-  @@map("reviews")
+  reviewer User @relation("reviews_given", fields: [reviewerId], references: [id])
+  receiver User @relation("reviews_received", fields: [receiverId], references: [id])
+
+  rating  Int
+  comment String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Payment {
+  id String @id @default(uuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  subscriptionId Int?
+  subscription   Subscription? @relation(fields: [subscriptionId], references: [id])
+
+  amount   Float
+  currency String @default("usd")
+
+  stripeInvoiceId     String  @unique
+  stripePaymentIntent String?
+
+  status PaymentStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
 }
 
 model Subscription {
-  id              String           @id @default(cuid())
-  stripeSessionId String?          @unique
-  amount          Int
-  currency        String           @default("usd")
-  type            SubscriptionType
-  status          String           @default("pending")
-  startDate       DateTime?
-  endDate         DateTime?
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
+  id                   Int                @id @default(autoincrement())
+  userId               String             @unique
+  user                 User               @relation(fields: [userId], references: [id])
+  stripeCustomerId     String @unique
+  stripeSubscriptionId String @unique
+  status               SubscriptionStatus
+  plan                 PlanType
+  currentPeriodEnd     DateTime
+  payments             Payment[]
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+}
 
-  // Relations
-  userId          String
-  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+enum SubscriptionStatus {
+  active
+  past_due
+  canceled
+  incomplete
+}
 
-  @@map("subscriptions")
+enum PlanType {
+  monthly
+  yearly
 }
