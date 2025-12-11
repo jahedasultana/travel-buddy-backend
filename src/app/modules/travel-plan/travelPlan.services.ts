@@ -63,6 +63,11 @@ const getAllTravelPlans = async (params: any, options: any) => {
 
     const andConditions: TravelPlanWhereInput[] = []
 
+    const rawStart = filterData.startDate;
+    const rawEnd = filterData.endDate;
+    delete filterData.startDate;
+    delete filterData.endDate;
+
     // Search fields
     if (searchTerm) {
         andConditions.push({
@@ -72,6 +77,29 @@ const getAllTravelPlans = async (params: any, options: any) => {
             ]
         })
     }
+
+    // date filter
+    if (rawStart && rawEnd) {
+        const start = new Date(rawStart);
+        const end = new Date(rawEnd);
+
+        if (start > end) {
+            throw new AppError(400, "Start date cannot be later than end date");
+        }
+
+        andConditions.push({ startDate: { gte: start } });
+        andConditions.push({ endDate: { lte: end } });
+    }
+
+    if (rawStart && !rawEnd) {
+        andConditions.push({ startDate: { gte: new Date(rawStart) } });
+    }
+
+    if (!rawStart && rawEnd) {
+        andConditions.push({ endDate: { lte: new Date(rawEnd) } });
+    }
+
+
 
     // Filters
     if (Object.keys(filterData).length > 0) {
@@ -122,31 +150,30 @@ const getAllTravelPlans = async (params: any, options: any) => {
 
 // Get travel plan by id
 const getTravelPlanById = async (id: string) => {
-    console.log(id, 'my id')
-  const result = await prisma.travelPlan.findUnique({
-    where: { id },
-    include: {
-      user: true,
-    },
-  });
+    const result = await prisma.travelPlan.findUnique({
+        where: { id },
+        include: {
+            user: true,
+        },
+    });
 
-  console.log(result, 'my result')
+    if (!result) {
+        throw new Error("Travel plan not found.");
+    }
 
-  if (!result) {
-    throw new Error("Travel plan not found.");
-  }
-
-  return result;
+    return result;
 };
 
 
 // Get my own plans
 const getMyTravelPlans = async (user: JwtPayload) => {
-    return await prisma.travelPlan.findMany({
+    const result = await prisma.travelPlan.findMany({
         where: {
             userId: user.id
         }
     })
+
+    return result
 }
 
 

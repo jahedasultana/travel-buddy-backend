@@ -22,7 +22,7 @@ const createTravelPlan = catchAsync(async (req: Request, res: Response) => {
 
 // Get all plans
 const getAllTravelPlans = catchAsync(async (req, res) => {
-    const filters = pickQueries(req.query, ["destination", "travelType", "visibility"]);
+    const filters = pickQueries(req.query, ["destination", "travelType", "visibility", 'startDate', 'endDate', 'searchTerm']);
     const options = pickQueries(req.query, ["page", "limit", "sortBy", "sortOrder"])
 
     const result = await TravelPlanServices.getAllTravelPlans(filters, options)
@@ -37,7 +37,11 @@ const getAllTravelPlans = catchAsync(async (req, res) => {
 
 // Get travel plan by id
 const getTravelPlanById = catchAsync(async (req: Request, res: Response) => {
-  const id = req.params.id;
+  const id = req?.params?.id;
+
+  if(!id){
+    throw new AppError(StatusCodes.NOT_FOUND, 'Id not found')
+  }
 
   const result = await TravelPlanServices.getTravelPlanById(id);
 
@@ -59,6 +63,8 @@ const getMyTravelPlans = catchAsync(async (req: Request & { user?: JWTPayload },
     }
 
     const result = await TravelPlanServices.getMyTravelPlans(user as JWTPayload);
+
+    console.log(result, 'my plans')
 
     sendResponse(res, {
         statusCode: 200,
