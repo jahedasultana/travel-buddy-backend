@@ -35,17 +35,20 @@
     "http-status-codes": "^2.3.0",
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.0.2",
+    "tsc-alias": "^1.8.16",
     "next-cloudinary": "^6.17.5",
     "pg": "^8.16.3",
     "stripe": "^20.0.0",
-    "zod": "^4.1.13"
+    "zod": "^4.1.13",
+     "ts-node": "^10.9.2",
+    "tsx": "^4.20.6"
   },
   "devDependencies": {
     "prisma": "^7.0.1",
-    "ts-node": "^10.9.2",
+   
     "ts-node-dev": "^2.0.0",
-    "tsc-alias": "^1.8.16",
-    "tsx": "^4.20.6",
+    
+    
     "typescript": "^5.9.3"
   }
 }
