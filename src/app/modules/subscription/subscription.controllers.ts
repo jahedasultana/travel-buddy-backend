@@ -63,7 +63,7 @@ const createSubscriptionSession = catchAsync(async (req: Request & { user?: JWTP
 
 
 // Stripe webhook to update subscription status
-const stripeWebhook = catchAsync(async (req: Request, res: Response) => {
+const stripeWebhook = catchAsync(async (req: Request, res: Response): Promise<void> => {
 
     const webhookSecret = envVars.STRIPE.STRIPE_WEBHOOK_SECRET
     console.log('stripe web hook is running ...')
@@ -74,7 +74,8 @@ const stripeWebhook = catchAsync(async (req: Request, res: Response) => {
     try {
         event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret!);
     } catch (err: any) {
-        return res.status(400).send(`Webhook Error: ${err.message}`);
+        res.status(400).send(`Webhook Error: ${err.message}`);
+        return;
     }
 
     switch (event.type) {

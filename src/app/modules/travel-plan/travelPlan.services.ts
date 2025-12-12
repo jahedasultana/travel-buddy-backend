@@ -52,6 +52,7 @@ const createTravelPlan = async (req: Request & { user?: JWTPayload }) => {
 
     } catch (error) {
         console.error('Transaction Failed:', error);
+        throw new AppError(StatusCodes.INTERNAL_SERVER_ERROR, 'Failed to create travel plan');
     }
 
 }

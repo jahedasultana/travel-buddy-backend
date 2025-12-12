@@ -3,7 +3,7 @@ import { JwtPayload } from "jsonwebtoken";
 import { prisma } from "../config/prisma.config";
 
 
-export const checkPremium = async (req: Request & {user?: JwtPayload}, res: Response, next: NextFunction) => {
+export const checkPremium = async (req: Request & {user?: JwtPayload}, res: Response, next: NextFunction): Promise<void> => {
   const userId = req?.user?.id;
 
   if(!userId){
@@ -12,7 +12,10 @@ export const checkPremium = async (req: Request & {user?: JwtPayload}, res: Resp
 
   const user = await prisma.user.findUnique({ where: { id: userId } })
 
-  if (!user?.verifiedBadge) return res.status(403).json({ message: 'Premium subscription required' })
+  if (!user?.verifiedBadge) {
+    res.status(403).json({ message: 'Premium subscription required' })
+    return;
+  }
 
   next();
 };
