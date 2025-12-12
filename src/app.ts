@@ -5,12 +5,11 @@ import { router } from './app/routes/index.js'
 import { envVars } from './app/config/env.config.js'
 import { notFound } from './app/middlewares/notFound.js'
 import globalErrorHandler from './app/middlewares/globalErrorHandler.js'
-import bodyParser from 'body-parser';
 import { SubscriptionControllers } from './app/modules/subscription/subscription.controllers.js'
 
 export const app = express()
 
-app.post('/webhook', bodyParser.raw({ type: 'application/json' }), SubscriptionControllers.stripeWebhook);
+app.post('/webhook',  express.raw({ type: 'application/json' }), SubscriptionControllers.stripeWebhook);
 
 app.set('trust proxy', 1)
 app.use(express.json())
