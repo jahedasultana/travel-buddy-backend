@@ -24,7 +24,7 @@ app.use('/api/v1', router)
 
 app.get('/', (req: Request, res: Response) => {
     res.status(200).json({
-        message: `Server is running on port ${envVars.PORT}`
+        message: `travel buddy server running`
     })
 })
 

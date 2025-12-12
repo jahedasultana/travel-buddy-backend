@@ -4,7 +4,7 @@ import { envVars } from "./app/config/env.config"
 const startServer = async () => {
     try {
         app.listen(envVars.PORT || 5000, () => {
-            console.log(`travel buddy server running`)
+            console.log(`Server is running on port ${envVars.PORT}`)
         })
     } catch (error) {
         console.log('Error while database connection.', error)
