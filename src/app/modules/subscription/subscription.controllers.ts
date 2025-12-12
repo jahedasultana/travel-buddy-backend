@@ -10,13 +10,13 @@ import Stripe from 'stripe';
 import { envVars } from '@/app/config/env.config';
 
 
-// Get user profile info
+// Get user profile info and create a subscription session
 const createSubscriptionSession = catchAsync(async (req: Request & { user?: JWTPayload }, res: Response) => {
-    const userId = req?.user?.id
-    const { plan } = req.body
+    const userId = req?.user?.id;
+    const { plan } = req.body;
 
     if (!userId) {
-        throw new AppError(StatusCodes.UNAUTHORIZED, 'User id not found')
+        throw new AppError(StatusCodes.UNAUTHORIZED, 'User id not found');
     }
 
     try {
@@ -26,7 +26,7 @@ const createSubscriptionSession = catchAsync(async (req: Request & { user?: JWTP
         });
 
         if (!user) {
-            throw new AppError(StatusCodes.UNAUTHORIZED, 'User not found')
+            throw new AppError(StatusCodes.UNAUTHORIZED, 'User not found');
         }
 
         let customerId = user.subscription?.stripeCustomerId;
@@ -34,36 +34,51 @@ const createSubscriptionSession = catchAsync(async (req: Request & { user?: JWTP
         if (!customerId) {
             customerId = await SubscriptionServices.createStripeCustomer(user.email);
 
-            await prisma.subscription.create({
-                data: {
-                    userId,
-                    stripeCustomerId: customerId,
-                    status: 'incomplete',
-                    plan,
-                    stripeSubscriptionId: '',
-                    currentPeriodEnd: new Date(),
-                },
-            });
+            try {
+                await prisma.subscription.create({
+                    data: {
+                        userId,
+                        stripeCustomerId: customerId,
+                        status: 'incomplete',
+                        plan,
+                        stripeSubscriptionId: '',
+                        currentPeriodEnd: new Date(),
+                    },
+                });
+            } catch (err: any) {
+                if (err.code === 'P2002') {
+                    console.error('Unique constraint violation:', err.meta);
+                    throw new AppError(StatusCodes.BAD_REQUEST, 'Subscription already exists for this user');
+                }
+                throw err;
+            }
+        } else {
+            console.log("User already has a subscription with customerId: ", customerId);
         }
 
+        // Create a checkout session for the user
         const session = await SubscriptionServices.createCheckoutSession(customerId, plan);
 
         sendResponse(res, {
             statusCode: 201,
             success: true,
-            message: 'Subscription url generated',
+            message: 'Subscription URL generated',
             data: { url: session.url }
-        })
+        });
 
     } catch (err) {
-        console.log(err);
-        res.status(500).json({ message: 'Server error' });
+        console.error('Error occurred in creating subscription session:', err);
+        
+        if (err instanceof AppError) {
+            res.status(err.statusCode).json({ message: err.message });
+        } else {
+            res.status(500).json({ message: 'Server error, please try again later' });
+        }
     }
-})
-
+});
 
 // Stripe webhook to update subscription status
-const stripeWebhook = catchAsync(async (req: Request, res: Response): Promise<void> => {
+const stripeWebhook = catchAsync(async (req: Request, res: Response) => {
 
     const webhookSecret = envVars.STRIPE.STRIPE_WEBHOOK_SECRET
     console.log('stripe web hook is running ...')
@@ -74,8 +89,7 @@ const stripeWebhook = catchAsync(async (req: Request, res: Response): Promise<vo
     try {
         event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret!);
     } catch (err: any) {
-        res.status(400).send(`Webhook Error: ${err.message}`);
-        return;
+        return res.status(400).send(`Webhook Error: ${err.message}`);
     }
 
     switch (event.type) {

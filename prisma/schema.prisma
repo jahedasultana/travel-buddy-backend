@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js"
   output   = "../src/generated/prisma"
 }
 
@@ -43,6 +43,7 @@ enum JoinStatus {
   ACCEPTED
   REJECTED
   CANCELLED
+  COMPLETED
 }
 
 enum SubscriptionStatus {
@@ -99,6 +100,7 @@ model TravelPlan {
   travelType  TravelType
   description String?
   visibility  Boolean @default(true)
+  isDeleted Boolean @default(false)
 
   // Relations
   user         User                   @relation("UserTravelPlans", fields: [userId], references: [id])
@@ -110,12 +112,20 @@ model TravelPlan {
   updatedAt DateTime @updatedAt
 }
 
+enum ParticipantStatus {
+  PENDING
+  ONGOING
+  COMPLETED
+  CANCELLED
+}
+
 model TravelPlanParticipant {
   id     String @id @default(uuid())
   planId String
   userId String
   joinedAt DateTime @default(now())
 
+  status ParticipantStatus @default(PENDING)
   plan TravelPlan @relation("PlanParticipants", fields: [planId], references: [id])
   user User         @relation("UserParticipants", fields: [userId], references: [id])
 
