@@ -17,8 +17,8 @@
 
 import * as runtime from "@prisma/client/runtime/index-browser"
 
-export type * from '../models'
-export type * from './prismaNamespace'
+export type * from '../models.js'
+export type * from './prismaNamespace.js'
 
 export const Decimal = runtime.Decimal
 
@@ -53,11 +53,11 @@ export const AnyNull = runtime.AnyNull
 export const ModelName = {
   User: 'User',
   TravelPlan: 'TravelPlan',
-  TravelPlanParticipant: 'TravelPlanParticipant',
-  TravelPlanJoinRequest: 'TravelPlanJoinRequest',
   Review: 'Review',
-  Payment: 'Payment',
-  Subscription: 'Subscription'
+  JoinRequest: 'JoinRequest',
+  Session: 'Session',
+  Account: 'Account',
+  Verification: 'Verification'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -80,19 +80,18 @@ export const UserScalarFieldEnum = {
   id: 'id',
   name: 'name',
   email: 'email',
-  password: 'password',
+  emailVerified: 'emailVerified',
+  image: 'image',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
   role: 'role',
   bio: 'bio',
-  profileImage: 'profileImage',
-  currentLocation: 'currentLocation',
-  gender: 'gender',
-  interests: 'interests',
+  travelInterests: 'travelInterests',
   visitedCountries: 'visitedCountries',
-  verifiedBadge: 'verifiedBadge',
-  status: 'status',
-  createdTravelPlans: 'createdTravelPlans',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  currentLocation: 'currentLocation',
+  stripeCustomerId: 'stripeCustomerId',
+  subscriptionStatus: 'subscriptionStatus',
+  isVerified: 'isVerified'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
@@ -104,80 +103,90 @@ export const TravelPlanScalarFieldEnum = {
   destination: 'destination',
   startDate: 'startDate',
   endDate: 'endDate',
+  budget: 'budget',
   budgetRange: 'budgetRange',
   travelType: 'travelType',
   description: 'description',
-  visibility: 'visibility',
-  isDeleted: 'isDeleted',
+  images: 'images',
+  interests: 'interests',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  status: 'status'
 } as const
 
 export type TravelPlanScalarFieldEnum = (typeof TravelPlanScalarFieldEnum)[keyof typeof TravelPlanScalarFieldEnum]
 
 
-export const TravelPlanParticipantScalarFieldEnum = {
-  id: 'id',
-  planId: 'planId',
-  userId: 'userId',
-  joinedAt: 'joinedAt',
-  status: 'status'
-} as const
-
-export type TravelPlanParticipantScalarFieldEnum = (typeof TravelPlanParticipantScalarFieldEnum)[keyof typeof TravelPlanParticipantScalarFieldEnum]
-
-
-export const TravelPlanJoinRequestScalarFieldEnum = {
-  id: 'id',
-  planId: 'planId',
-  requesterId: 'requesterId',
-  status: 'status'
-} as const
-
-export type TravelPlanJoinRequestScalarFieldEnum = (typeof TravelPlanJoinRequestScalarFieldEnum)[keyof typeof TravelPlanJoinRequestScalarFieldEnum]
-
-
 export const ReviewScalarFieldEnum = {
   id: 'id',
-  reviewerId: 'reviewerId',
-  targetUserId: 'targetUserId',
-  planId: 'planId',
   rating: 'rating',
   comment: 'comment',
-  createdAt: 'createdAt'
+  reviewerId: 'reviewerId',
+  revieweeId: 'revieweeId',
+  travelPlanId: 'travelPlanId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type ReviewScalarFieldEnum = (typeof ReviewScalarFieldEnum)[keyof typeof ReviewScalarFieldEnum]
 
 
-export const PaymentScalarFieldEnum = {
+export const JoinRequestScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
-  subscriptionId: 'subscriptionId',
-  amount: 'amount',
-  currency: 'currency',
-  stripeInvoiceId: 'stripeInvoiceId',
-  stripePaymentIntent: 'stripePaymentIntent',
+  travelPlanId: 'travelPlanId',
   status: 'status',
-  createdAt: 'createdAt'
-} as const
-
-export type PaymentScalarFieldEnum = (typeof PaymentScalarFieldEnum)[keyof typeof PaymentScalarFieldEnum]
-
-
-export const SubscriptionScalarFieldEnum = {
-  id: 'id',
-  userId: 'userId',
-  stripeCustomerId: 'stripeCustomerId',
-  stripeSubscriptionId: 'stripeSubscriptionId',
-  status: 'status',
-  plan: 'plan',
-  currentPeriodEnd: 'currentPeriodEnd',
+  message: 'message',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
-export type SubscriptionScalarFieldEnum = (typeof SubscriptionScalarFieldEnum)[keyof typeof SubscriptionScalarFieldEnum]
+export type JoinRequestScalarFieldEnum = (typeof JoinRequestScalarFieldEnum)[keyof typeof JoinRequestScalarFieldEnum]
+
+
+export const SessionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  token: 'token',
+  expiresAt: 'expiresAt',
+  ipAddress: 'ipAddress',
+  userAgent: 'userAgent',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SessionScalarFieldEnum = (typeof SessionScalarFieldEnum)[keyof typeof SessionScalarFieldEnum]
+
+
+export const AccountScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  accountId: 'accountId',
+  providerId: 'providerId',
+  accessToken: 'accessToken',
+  refreshToken: 'refreshToken',
+  accessTokenExpiresAt: 'accessTokenExpiresAt',
+  refreshTokenExpiresAt: 'refreshTokenExpiresAt',
+  scope: 'scope',
+  idToken: 'idToken',
+  password: 'password',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AccountScalarFieldEnum = (typeof AccountScalarFieldEnum)[keyof typeof AccountScalarFieldEnum]
+
+
+export const VerificationScalarFieldEnum = {
+  id: 'id',
+  identifier: 'identifier',
+  value: 'value',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type VerificationScalarFieldEnum = (typeof VerificationScalarFieldEnum)[keyof typeof VerificationScalarFieldEnum]
 
 
 export const SortOrder = {

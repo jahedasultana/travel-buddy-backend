@@ -12,14 +12,16 @@
 
 import * as process from 'node:process'
 import * as path from 'node:path'
+import { fileURLToPath } from 'node:url'
+globalThis['__dirname'] = path.dirname(fileURLToPath(import.meta.url))
 
 import * as runtime from "@prisma/client/runtime/client"
-import * as $Enums from "./enums"
-import * as $Class from "./internal/class"
-import * as Prisma from "./internal/prismaNamespace"
+import * as $Enums from "./enums.js"
+import * as $Class from "./internal/class.js"
+import * as Prisma from "./internal/prismaNamespace.js"
 
-export * as $Enums from './enums'
-export * from "./enums"
+export * as $Enums from './enums.js'
+export * from "./enums.js"
 /**
  * ## Prisma Client
  * 
@@ -48,27 +50,27 @@ export type User = Prisma.UserModel
  */
 export type TravelPlan = Prisma.TravelPlanModel
 /**
- * Model TravelPlanParticipant
- * 
- */
-export type TravelPlanParticipant = Prisma.TravelPlanParticipantModel
-/**
- * Model TravelPlanJoinRequest
- * 
- */
-export type TravelPlanJoinRequest = Prisma.TravelPlanJoinRequestModel
-/**
  * Model Review
  * 
  */
 export type Review = Prisma.ReviewModel
 /**
- * Model Payment
+ * Model JoinRequest
  * 
  */
-export type Payment = Prisma.PaymentModel
+export type JoinRequest = Prisma.JoinRequestModel
 /**
- * Model Subscription
+ * Model Session
  * 
  */
-export type Subscription = Prisma.SubscriptionModel
+export type Session = Prisma.SessionModel
+/**
+ * Model Account
+ * 
+ */
+export type Account = Prisma.AccountModel
+/**
+ * Model Verification
+ * 
+ */
+export type Verification = Prisma.VerificationModel

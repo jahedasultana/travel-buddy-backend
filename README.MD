@@ -1,84 +1,108 @@
-# Travel Buddy - Backend
+# Travel Buddy - Backend API
 
-## Live URL
-Currently running locally at: `http://localhost:5000`  
-(Replace with your deployed backend URL once available)
+The robust RESTful API powering the Travel Buddy platform. Built with **Express.js**, **Prisma**, and **PostgreSQL**.
 
-**Travel Buddy** is a modern, responsive, and interactive web application built with Node js, express js, typescript, postgreSQL, prisma. It allows users to explore travel plans, join trips, leave reviews, and manage their profile seamlessly.
+## 🏗️ Project Structure
 
----
-
-## Features
-- **User Authentication & Authorization**
-  - JWT-based authentication
-  - Role-based access control (Admin, User, Super Admin)
-- **Travel Plan Management**
-  - CRUD operations for travel plans
-  - Visibility control (public/private)
-  - Search & filtering by destination, date, travel type
-- **Join Requests**
-  - Send, accept, reject, and cancel travel plan join requests
-  - List of participants for each plan
-  - Prevent joining own plans or duplicate requests
-- **Reviews & Feedback**
-  - Users can review each other after completing a travel plan
-  - Ratings & comments stored per user per plan
-- **Payments & Subscriptions**
-  - Stripe integration for subscription management
-
-
-## Technology Stack
-- **Language & Runtime:** TypeScript, Node.js
-- **Framework:** Express.js
-- **Database:** PostgreSQL
-- **ORM:** Prisma
-- **Authentication:** JWT
-- **Payment Gateway:** Stripe
-- **Error Handling:** Custom error middleware
-- **Validation:** Zod (optional) or express-validator
-- **Environment Management:** dotenv
-
-## Setup & Installation
-
-1. Clone the repository:
-```bash
-git clone https://github.com/your-username/travel-buddy-backend.git
-cd travel-buddy-backend
+```text
+backend/
+├── prisma/
+│   ├── schema.prisma      # Database schema definition
+│   └── seed.ts            # (Optional) Database seeding script
+├── src/
+│   ├── controllers/       # Request handlers (User, TravelPlan)
+│   ├── lib/               # Configuration (Auth, Prisma Client)
+│   ├── middleware/        # Auth guards, Error handling
+│   ├── routes/            # API Route definitions
+│   ├── utils/             # Helpers (Email, Logger)
+│   └── index.ts           # Server entry point
+└── package.json
 ```
 
-2. Install dependencies:
+## ⚙️ Environment Configuration
+
+Ensure your `.env` file is configured with the following:
+
+| Variable | Description | Example |
+| :--- | :--- | :--- |
+| `DATABASE_URL` | Connection string for PostgreSQL | `postgresql://user:pass@localhost:5432/travelbuddy` |
+| `PORT` | Server listening port | `5000` |
+| `BETTER_AUTH_SECRET` | Secret key for session encryption | `your-secret-key` |
+| `BETTER_AUTH_URL` | Base URL of the backend | `http://localhost:5000` |
+| `SMTP_HOST` | Email server host | `smtp.gmail.com` |
+| `SMTP_USER` | Email user | `user@example.com` |
+| `SMTP_PASS` | Email password | `app-specific-password` |
+
+## 📐 Database Schema
+
+A simplified view of our core data models using Prisma:
+
+```mermaid
+erDiagram
+    User ||--o{ TravelPlan : creates
+    User ||--o{ Review : writes
+    User ||--o{ Session : has
+    TravelPlan ||--o{ JoinRequest : receives
+    
+    User {
+        String id
+        String email
+        String name
+        Boolean emailVerified
+        String[] interests
+    }
+
+    TravelPlan {
+        String id
+        String destination
+        DateTime startDate
+        Int budget
+        String userId
+    }
+
+    Session {
+        String id
+        String token
+        DateTime expiresAt
+    }
+```
+
+## 🔌 API Endpoints
+
+### Authentication (`/api/auth/*`)
+Handled by Better Auth.
+-   `POST /api/auth/sign-up/email`: Register new user.
+-   `POST /api/auth/sign-in/email`: Login with password.
+-   `POST /api/auth/sign-in/social`: Login with OAuth providers.
+
+### Users (`/api/users`)
+| Method | Endpoint | Secured | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/profile` | ✅ | Get the verified user's profile. |
+| `PUT` | `/profile` | ✅ | Update user details (Bio, Interests). |
+| `GET` | `/search` | ❌ | Search for other users. |
+
+### Travel Plans (`/api/travel-plans`)
+| Method | Endpoint | Secured | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/` | ❌ | List all travel plans (Supports filtering). |
+| `POST` | `/` | ✅ | Create a new travel plan. |
+| `GET` | `/:id` | ❌ | Get details of a specific plan. |
+| `POST` | `/:id/join` | ✅ | Request to join a plan. |
+
+## 🚀 Development & Deployment
+
+**Run Locally:**
 ```bash
 npm install
-```
-
-3. Install dependencies:
-```bash
-DATABASE_URL=postgresql://username:password@localhost:5432/travelbuddy
-JWT_SECRET=your_jwt_secret
-STRIPE_SECRET_KEY=your_stripe_secret_key
-STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret
-```
-
-4. Generate Prisma client & migrate database:
-```bash
 npx prisma generate
-npx prisma migrate dev --name init
-```
-
-5. Start the development server:
-```bash
+npx prisma migrate dev
 npm run dev
 ```
 
-src/
-├─ app/
-│  ├─ modules/
-│  │  ├─ auth/
-│  │  ├─ travel-plan/
-│  │  ├─ join-request/
-│  │  └─ review/
-│  ├─ middlewares/
-│  └─ utils/
-├─ config/
-├─ generated/ 
-└─ server.ts
+**Production Build:**
+```bash
+npm run build
+npm start
+```
+*Note: Make sure to run migrations (`npx prisma migrate deploy`) in your production environment.*

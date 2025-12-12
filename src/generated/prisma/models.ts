@@ -8,11 +8,11 @@
  *
  * 🟢 You can import this file directly.
  */
-export type * from './models/User'
-export type * from './models/TravelPlan'
-export type * from './models/TravelPlanParticipant'
-export type * from './models/TravelPlanJoinRequest'
-export type * from './models/Review'
-export type * from './models/Payment'
-export type * from './models/Subscription'
-export type * from './commonInputTypes'
+export type * from './models/User.js'
+export type * from './models/TravelPlan.js'
+export type * from './models/Review.js'
+export type * from './models/JoinRequest.js'
+export type * from './models/Session.js'
+export type * from './models/Account.js'
+export type * from './models/Verification.js'
+export type * from './commonInputTypes.js'

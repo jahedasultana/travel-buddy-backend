@@ -9,85 +9,38 @@
 * 🟢 You can import this file directly.
 */
 
-export const UserRole = {
-  SUPER_ADMIN: 'SUPER_ADMIN',
-  ADMIN: 'ADMIN',
-  USER: 'USER'
-} as const
-
-export type UserRole = (typeof UserRole)[keyof typeof UserRole]
-
-
-export const UserStatus = {
-  ACTIVE: 'ACTIVE',
-  BLOCKED: 'BLOCKED',
-  DELETED: 'DELETED'
-} as const
-
-export type UserStatus = (typeof UserStatus)[keyof typeof UserStatus]
-
-
-export const Gender = {
-  MALE: 'MALE',
-  FEMALE: 'FEMALE',
-  OTHERS: 'OTHERS'
-} as const
-
-export type Gender = (typeof Gender)[keyof typeof Gender]
-
-
-export const TravelType = {
-  SOLO: 'SOLO',
-  FAMILY: 'FAMILY',
-  FRIENDS: 'FRIENDS'
-} as const
-
-export type TravelType = (typeof TravelType)[keyof typeof TravelType]
-
-
-export const PaymentStatus = {
-  PENDING: 'PENDING',
-  SUCCESS: 'SUCCESS',
-  FAILED: 'FAILED'
-} as const
-
-export type PaymentStatus = (typeof PaymentStatus)[keyof typeof PaymentStatus]
-
-
-export const JoinStatus = {
-  PENDING: 'PENDING',
-  ACCEPTED: 'ACCEPTED',
-  REJECTED: 'REJECTED',
-  CANCELLED: 'CANCELLED',
-  COMPLETED: 'COMPLETED'
-} as const
-
-export type JoinStatus = (typeof JoinStatus)[keyof typeof JoinStatus]
-
-
 export const SubscriptionStatus = {
-  active: 'active',
-  past_due: 'past_due',
-  canceled: 'canceled',
-  incomplete: 'incomplete'
+  ACTIVE: 'ACTIVE',
+  INACTIVE: 'INACTIVE',
+  PAST_DUE: 'PAST_DUE',
+  CANCELED: 'CANCELED'
 } as const
 
 export type SubscriptionStatus = (typeof SubscriptionStatus)[keyof typeof SubscriptionStatus]
 
 
-export const PlanType = {
-  monthly: 'monthly',
-  yearly: 'yearly'
-} as const
-
-export type PlanType = (typeof PlanType)[keyof typeof PlanType]
-
-
-export const ParticipantStatus = {
-  PENDING: 'PENDING',
+export const PlanStatus = {
+  UPCOMING: 'UPCOMING',
   ONGOING: 'ONGOING',
   COMPLETED: 'COMPLETED',
   CANCELLED: 'CANCELLED'
 } as const
 
-export type ParticipantStatus = (typeof ParticipantStatus)[keyof typeof ParticipantStatus]
+export type PlanStatus = (typeof PlanStatus)[keyof typeof PlanStatus]
+
+
+export const RequestStatus = {
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED'
+} as const
+
+export type RequestStatus = (typeof RequestStatus)[keyof typeof RequestStatus]
+
+
+export const Role = {
+  USER: 'USER',
+  ADMIN: 'ADMIN'
+} as const
+
+export type Role = (typeof Role)[keyof typeof Role]
